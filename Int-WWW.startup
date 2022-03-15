@@ -1,0 +1,6 @@
+ifconfig eth0 129.11.155.98/16
+route add default gw 129.11.254.157
+
+a2enmod ssl
+a2ensite default-ssl
+service apache2 start
