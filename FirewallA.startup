@@ -1,0 +1,15 @@
+ifconfig eth0 129.11.254.158/16
+ifconfig eth1 192.168.1.1/25
+
+
+###Port Forwarding
+#Port Translation
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 443 
+
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination 192.168.1.10 
+iptables -t nat -A PREROUTING -i eth0 -p udp --dport 53 -j DNAT --to-destination 192.168.1.11
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 25 -j DNAT --to-destination 192.168.1.13
+iptables -t nat -A PREROUTING -i eth0 -p udp --dport 1194 -j DNAT --to-destination 192.168.1.14
+
+
