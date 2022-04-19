@@ -1,4 +1,4 @@
 ifconfig eth0 192.168.1.11/25
-route add default gw 192.168.1.1/25
+route add default gw 192.168.1.1 eth0
 chmod +r /etc/dnsmasq_static_hosts.conf
 service dnsmasq start
