@@ -3,4 +3,3 @@ ifconfig eth1 8.8.8.1/24
 ifconfig eth2 22.39.224.17/30
 ifconfig eth3 129.11.254.157/16
 
-route add default gw 129.11.254.158 eth3
