@@ -1,7 +1,6 @@
 ifconfig eth0 129.11.254.158/16
 ifconfig eth1 192.168.1.1/25
-
-route add default gw 129.11.254.157 eth0
+ifconfig eth2 192.168.1.129/25
 
 ###Port Forwarding
 #Port Translation
@@ -13,19 +12,16 @@ iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT
 iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 993,995 -j DNAT --to-destination 192.168.1.13
 iptables -t nat -A PREROUTING -i eth0 -p udp --dport 1194 -j DNAT --to-destination 192.168.1.14
 
-
-###firewall rules
-
-iptables -P FORWARD DROP
-iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -m state --state INVALID -j DROP
+#iptables -P FORWARD REJECT
+#iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+#iptables -A FORWARD -m state --state INVALID -j DROP
 
 #specifying the mail server can only send and recieve encrypted emails
-iptables -A FORWARD -p tcp --match multiport --sports 25,587 --match multiport --dports 993,995 -d 192.168.1.13 -j ACCEPT
+#iptables -A FORWARD --sport 465 --match multiport --dports 993,995 -d 192.168.1.13
 
-#specifying the rules for the dns server (only communicate with ext dns server)
-iptables -A FORWARD -p tcp --sport 53 --dport 53 -d 8.8.8.8 -s 192.168.1.11 -j ACCEPT
+#specifying the rules for the dns server (only communicate with ext dns server and int www server)
+#iptables -A FORWARD --sport 53 --dport 53 -d 8.8.8.8 -s 192.168.1.11
 
 #specifying the rules for the www server
 #https://www.sciencedirect.com/topics/computer-science/corporate-web-server
-iptables -A FORWARD -p tcp --sport 443 --dport 443 -d 201.224.19.7 -s 192.168.1.10 -j ACCEPT
+#iptables -A FORWARD --sport 443 --dport 443 -d 201.224.19.7 -s 192.168.1.10
