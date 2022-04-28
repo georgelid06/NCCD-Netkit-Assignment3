@@ -2,6 +2,8 @@ ifconfig eth0 129.11.254.158/16
 ifconfig eth1 192.168.1.1/25
 ifconfig eth2 192.168.1.129/25
 
+ip route add default via 129.11.254.157
+
 ###Port Forwarding
 #Port Translation
 iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 443 
