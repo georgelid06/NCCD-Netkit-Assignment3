@@ -2,26 +2,49 @@ ifconfig eth0 129.11.254.158/16
 ifconfig eth1 192.168.1.1/25
 ifconfig eth2 192.168.1.129/25
 
+ip route add default via 129.11.254.157
+
 ###Port Forwarding
 #Port Translation
 iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 443 
 
 iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination 192.168.1.10 
 iptables -t nat -A PREROUTING -i eth0 -p udp --dport 53 -j DNAT --to-destination 192.168.1.11
-iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT
-iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 993,995 -j DNAT --to-destination 192.168.1.13
+iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dports 3128,8080 -j DNAT --to-destination 192.168.1.12
+iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dports 465,993,995 -j DNAT --to-destination 192.168.1.13
 iptables -t nat -A PREROUTING -i eth0 -p udp --dport 1194 -j DNAT --to-destination 192.168.1.14
 
-#iptables -P FORWARD REJECT
-#iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-#iptables -A FORWARD -m state --state INVALID -j DROP
+iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 636,3269 -j DNAT --to-destination 192.168.1.141
+
+
+###inbound rules
+iptables -P FORWARD DROP
+iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -m state --state INVALID -j DROP
 
 #specifying the mail server can only send and recieve encrypted emails
-#iptables -A FORWARD --sport 465 --match multiport --dports 993,995 -d 192.168.1.13
+iptables -A FORWARD -p tcp --match multiport --dports 465,993,995 -d 192.168.1.13 -j ACCEPT
 
-#specifying the rules for the dns server (only communicate with ext dns server and int www server)
-#iptables -A FORWARD --sport 53 --dport 53 -d 8.8.8.8 -s 192.168.1.11
+#specifying the rules for the dns server
+#only employees and the ext office can access
+iptables -A FORWARD -p udp --dport 53 -d 192.168.1.11 -s 192.168.1.128/25,22.39.224.18 -j ACCEPT
 
 #specifying the rules for the www server
 #https://www.sciencedirect.com/topics/computer-science/corporate-web-server
-#iptables -A FORWARD --sport 443 --dport 443 -d 201.224.19.7 -s 192.168.1.10
+iptables -A FORWARD -p tcp --dport 443 -d 192.168.1.10 -s 192.168.1.128/25,22.39.224.18 -j ACCEPT
+
+#specifying rules for open vpn
+iptables -A FORWARD -p udp --dport 1194 -d 192.168.1.14 -s 192.168.1.128/25,22.39.224.18 -j ACCEPT
+
+#squid proxy
+iptables -A FORWARD -p tcp --match multiport --dports 3128,8080 -d 192.168.1.12 -s 192.168.1.128/25,22.39.224.18 -j ACCEPT
+
+#ldap for ext office
+iptables -A FORWARD -p tcp --match multiport --dports 636,3269 -d 192.168.1.141 -s 22.39.224.18 -j ACCEPT
+
+
+###outbound rules
+#rule for employees accessing webserver
+iptables -A FORWARD -p tcp --dport 443 -d 201.224.19.7 -m iprange --src-range 192.168.1.138-192.168.1.140 -j ACCEPT
+#rule for employees accessing dns server
+iptables -A FORWARD -p udp --dport 53 -d 8.8.8.8 -m iprange --src-range 192.168.1.138-192.168.1.140 -j ACCEPT
