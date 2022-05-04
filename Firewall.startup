@@ -6,14 +6,18 @@ ip route add default via 129.11.254.157
 
 ###NAT
 iptables -t nat -A POSTROUTING --out-interface eth0 -j MASQUERADE
-#Port Translation
-##iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 443 
 
-##iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination 192.168.1.10 
-##iptables -t nat -A PREROUTING -i eth0 -p udp --dport 53 -j DNAT --to-destination 192.168.1.11
-##iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT
-##iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 993,995 -j DNAT --to-destination 192.168.1.13
-##iptables -t nat -A PREROUTING -i eth0 -p udp --dport 1194 -j DNAT --to-destination 192.168.1.14
+###
+iptables -t nat -A PREROUTING -p TCP --dport 443 -j DNAT --to-destination 192.168.1.10
+
+#Port Translation
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 443 
+
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination 192.168.1.10 
+iptables -t nat -A PREROUTING -i eth0 -p udp --dport 53 -j DNAT --to-destination 192.168.1.11
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT
+iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 993,995 -j DNAT --to-destination 192.168.1.13
+iptables -t nat -A PREROUTING -i eth0 -p udp --dport 1194 -j DNAT --to-destination 192.168.1.14
 
 iptables -t nat -A PREROUTING -i eth0 -p tcp --match multiport --dport 636,3269 -j DNAT --to-destination 192.168.1.141
 
