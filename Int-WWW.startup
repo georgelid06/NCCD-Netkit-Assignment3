@@ -1,7 +1,9 @@
 ifconfig eth0 192.168.1.10/25
-ip route add default via 192.168.1.1/25
+ip route add default via 192.168.1.1
 
 
 a2enmod ssl
 a2ensite default-ssl
-service apache2 start
+#service apache2 start
+
+iptables -A INPUT -s 192.168.1.11,192.168.1.12,192.168.1.13,192.168.1.14,192.168.1.141 -j DROP
